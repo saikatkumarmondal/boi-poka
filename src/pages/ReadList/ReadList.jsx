@@ -6,19 +6,54 @@ import { getStoredBook } from '../../utility/addToDB';
 import Book from '../Book/Book';
 const ReadList = () => {
     const [ readList, setReadList ] = useState( [] );
+    const [sort, setSort] = useState("");
     const data = useLoaderData();
-   
-    useEffect( () => {
-        const storedBookData = getStoredBook();
-        const convertedStoredBook = storedBookData.map( ( id ) => ( parseInt( id ) ) );
-       const myReadList = data.filter((book) =>
-         convertedStoredBook.includes(book.bookId)
+    const handleSort = (type) => {
+      setSort(type);
+      if (type === "pages") {
+        const sortedByPage = [...readList].sort(
+          (a, b) => a.totalPages - b.totalPages
         );
-        
-        setReadList(myReadList);
-    },[])
+        setReadList(sortedByPage);
+      }
+
+      if (type === "ratings") {
+        const sortedByRatings = [...readList].sort(
+          (a, b) => a.rating - b.rating
+        );
+        setReadList(sortedByRatings);
+      }
+    };
+    useEffect(() => {
+      const storedBookData = getStoredBook();
+      const convertedStoredBook = storedBookData.map((id) => parseInt(id));
+      const myReadList = data.filter((book) =>
+        convertedStoredBook.includes(book.bookId)
+      );
+
+      setReadList(myReadList);
+    }, []);
     return (
       <div>
+        <button
+          className="btn"
+          popoverTarget="popover-1"
+          style={{ anchorName: "--anchor-1" } /* as React.CSSProperties */}>
+          Sort By : {sort ? sort.toUpperCase() : ""}
+        </button>
+
+        <ul
+          className="dropdown menu w-52 rounded-box bg-base-100 shadow-sm"
+          popover="auto"
+          id="popover-1"
+          style={{ positionAnchor: "--anchor-1" } /* as React.CSSProperties */}>
+          <li>
+            <a onClick={() => handleSort("pages")}>Pages</a>
+          </li>
+          <li>
+            <a onClick={() => handleSort("ratings")}>Ratings</a>
+          </li>
+        </ul>
         <Tabs>
           <TabList>
             <Tab>Read Book List</Tab>
